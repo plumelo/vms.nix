@@ -9,14 +9,14 @@ let
         else "rm ${stateDirectory}/${name}/nixos.qcow2 || true;"
       };
     '';
-  mkService = { name, enable, autostart, user, group, vm }:
+  mkService = { name, enable, auto, user, group, vm }:
     let
       cleanup = cleanup' cfg;
       inherit (vmsCfg) stateDirectory;
     in
     {
       inherit enable;
-      wantedBy = lib.optional autostart "machines.target";
+      wantedBy = lib.optional auto "machines.target";
       serviceConfig = {
         ExecStartPre = cleanup;
         ExecStart = pkgs.writeScriptSbin "start-vm" ''

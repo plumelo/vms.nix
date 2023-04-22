@@ -35,5 +35,5 @@ in lib.mkIf cfg.enable (lib.mkMerge [
       systemd.targets."multi-user".wants = [ "machines.target" ];
     }
   )
-  (import ./vms-config args)
+  (import ./vms-config.nix args)
 ])

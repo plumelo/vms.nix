@@ -29,7 +29,7 @@ with lib;
     default = null;
   };
 
-  autostart = mkOption {
+  auto = mkOption {
     default = true;
     description = lib.mdDoc ''
       Whether to start the vm automatically.
