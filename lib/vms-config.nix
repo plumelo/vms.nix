@@ -2,29 +2,23 @@
 let
   vmsCfg = config.vms;
   vms = vmsCfg.vms;
-  cleanup' = { name, persist, stateDirectory, cfg }:
-    pkgs.writeScriptBin "cleanup" ''
-      ${if persistState 
-        then ""
-        else "rm ${stateDirectory}/${name}/nixos.qcow2 || true;"
-      };
-    '';
-  mkService = { name, enable, auto, user, group, vm }:
+  mkService = { name, enable, auto, user, group, vm, persist, ... }@cfg:
     let
-      cleanup = cleanup' cfg;
-      inherit (vmsCfg) stateDirectory;
+      stateDir = vmsCfg.stateDir;
     in
-    {
+    rec {
       inherit enable;
       wantedBy = lib.optional auto "machines.target";
+      preStart = lib.optionalString (!persist) ''
+        rm -f -- ${stateDir}/${name}/nixos.qcow2
+      '';
+      postStop = preStart;
+      script = ''
+        mkdir -p ${stateDir}/${name}
+        cd ${stateDir}/${name}
+        exec ${vm.out}/bin/run-${name}-vm;
+      '';
       serviceConfig = {
-        ExecStartPre = cleanup;
-        ExecStart = pkgs.writeScriptSbin "start-vm" ''
-          mkdir -p ${stateDirectory}/${name}
-          cd ${stateDirectory}/${name}
-          exec ${vm.out}/bin/run-${name}-vm;
-        '';
-        ExecStopPost = cleanup;
         User = user;
         Group = group;
         LimitNOFILE = 1048576;
@@ -35,7 +29,7 @@ in
 {
   systemd.services = lib.concatMapAttrs
     (name: cfg: {
-      "vms@${name}" = mkService cfg // { inherit name; };
+      "vms@${name}" = mkService (cfg // { inherit name; });
     })
-    cfg;
+    vms;
 }

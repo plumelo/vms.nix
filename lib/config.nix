@@ -1,5 +1,5 @@
 { config, lib, ... }@args:
-let cfg = cfg.vms;
+let cfg = config.vms;
 in lib.mkIf cfg.enable (lib.mkMerge [
   (
     let

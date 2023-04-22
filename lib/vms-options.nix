@@ -7,18 +7,11 @@ with lib;
 
 {
   enable = mkOption {
-    default = false;
+    default = true;
     description = lib.mdDoc ''
       Whether to enable the vm.
     '';
-    type = lib.types.bool;
-  };
-
-  name = mkOption {
-    type = types.str;
-    description = lib.mdDoc ''
-      Name of the vm to configure.
-    '';
+    type = types.bool;
   };
 
   vm = mkOption {
@@ -34,7 +27,7 @@ with lib;
     description = lib.mdDoc ''
       Whether to start the vm automatically.
     '';
-    type = lib.types.bool;
+    type = types.bool;
   };
 
   persist = mkOption {
@@ -42,7 +35,7 @@ with lib;
     description = lib.mdDoc ''
       Whether to delete or keep the vm's drive pre start.
     '';
-    type = lib.types.bool;
+    type = types.bool;
   };
 
   user = mkOption {
@@ -51,16 +44,16 @@ with lib;
       User under which to run the service.
     '';
     default = config.vms.user;
-    defaultText = literalExpression "config.vms.user";
+    defaultText = literalExpression "vms.user";
   };
 
-  group = {
+  group = mkOption {
     type = types.str;
     description = lib.mdDoc ''
       Group under which to run the service.
     '';
     default = config.vms.group;
-    defaultText = literalExpression "config.vms.group";
+    defaultText = literalExpression "vms.group";
   };
 
 }
