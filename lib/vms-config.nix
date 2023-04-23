@@ -11,7 +11,7 @@ let
     })
     cfg
     cfgs;
-  mkService = { name, enable, path, auto, user, group, vm, setup, teardown, ... }@cfg:
+  mkService = { name, enable, path, user, group, vm, setup, teardown, ... }@cfg:
     let
       stateDir = vmsCfg.stateDir;
       cleanups =
@@ -38,7 +38,7 @@ let
     rec {
       inherit enable;
       inherit (merged) path;
-      wantedBy = lib.optional auto "machines.target";
+      wantedBy = lib.optional cfg.auto "machines.target";
       script = ''
         mkdir -p ${stateDir}/${name}
         cd ${stateDir}/${name}
