@@ -14,6 +14,11 @@ with lib;
     type = types.bool;
   };
 
+  path = mkOption {
+    default = [ ];
+    type = with types; listOf (oneOf [ package str ]);
+  };
+
   vm = mkOption {
     type = types.package;
     description = lib.mdDoc ''
@@ -54,6 +59,22 @@ with lib;
     '';
     default = config.vms.group;
     defaultText = literalExpression "vms.group";
+  };
+
+  setup = mkOption {
+    type = types.nullOr types.lines;
+    description = lib.mdDoc ''
+      Setup to be executed before the VM starts.
+    '';
+    default = null;
+  };
+
+  teardown = mkOption {
+    type = types.nullOr types.lines;
+    description = lib.mdDoc ''
+      Teardown to be executed after the VM has stopped.
+    '';
+    default = null;
   };
 
 }

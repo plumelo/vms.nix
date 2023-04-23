@@ -2,17 +2,19 @@
 let
   vmsCfg = config.vms;
   vms = vmsCfg.vms;
-  mkService = { name, enable, auto, user, group, vm, persist, ... }@cfg:
+  mkService = { name, enable, path, auto, user, group, vm, persist, setup, teardown, ... }@cfg:
     let
       stateDir = vmsCfg.stateDir;
+      cleanups = if persist then [ ] else [
+        (pkgs.writeShellScript "vns-${name}-cleanup" ''
+          rm -f -- ${stateDir}/${name}/nixos.qcow2
+        ''
+        )
+      ];
     in
     rec {
-      inherit enable;
+      inherit enable path;
       wantedBy = lib.optional auto "machines.target";
-      preStart = lib.optionalString (!persist) ''
-        rm -f -- ${stateDir}/${name}/nixos.qcow2
-      '';
-      postStop = preStart;
       script = ''
         mkdir -p ${stateDir}/${name}
         cd ${stateDir}/${name}
@@ -23,6 +25,13 @@ let
         Group = group;
         LimitNOFILE = 1048576;
         LimitMEMLOCK = "infinity";
+        ExecStartPre = cleanups ++ lib.optional (setup != null) [
+          "+${pkgs.writeShellScript "vms-${name}-setup" setup}"
+        ];
+        ExecStopPost = cleanups ++ lib.optional (setup != null) [
+          "+${pkgs.writeShellScript "vms-${name}-teardown" teardown}"
+        ];
+
       };
     };
 in
