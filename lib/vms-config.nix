@@ -2,7 +2,7 @@
 let
   vmsCfg = config.vms;
   vms = vmsCfg.vms;
-  merge = cfgs: cfg: lib.foldr
+  merge = cfgs: cfg: lib.foldl
     (a: b: {
       path = a.path ++ b.path;
       args = a.args ++ b.args;
@@ -27,7 +27,7 @@ let
           ({ lib, ... }: {
             virtualisation = {
               qemu.options = merged.args;
-              qemu.networkingOptions = lib.mkDefault [ ];
+              qemu.networkingOptions = lib.mkForce [ ];
             } // cfg.options;
           })
         ];
