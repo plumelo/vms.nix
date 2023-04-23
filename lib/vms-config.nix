@@ -11,15 +11,16 @@ let
     })
     cfg
     cfgs;
-  mkService = { name, enable, path, auto, user, group, vm, persist, setup, teardown, ... }@cfg:
+  mkService = { name, enable, path, auto, user, group, vm, setup, teardown, ... }@cfg:
     let
       stateDir = vmsCfg.stateDir;
-      cleanups = if persist then [ ] else [
-        (pkgs.writeShellScript "vns-${name}-cleanup" ''
-          rm -f -- ${stateDir}/${name}/${name}.qcow2
-        ''
-        )
-      ];
+      cleanups =
+        if cfg.cleanup then [
+          (pkgs.writeShellScript "vms-${name}-cleanup" ''
+            rm -f -- ${stateDir}/${name}/${name}.qcow2
+          ''
+          )
+        ] else [ ];
       merged = merge (import ./interfaces/config.nix pkgs cfg.interfaces { inherit name user group; }) cfg;
       build = (vm.extendModules {
         modules = [

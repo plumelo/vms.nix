@@ -48,7 +48,7 @@ with lib;
     type = types.bool;
   };
 
-  persist = mkOption {
+  cleanup = mkOption {
     default = false;
     description = lib.mdDoc ''
       Whether to delete or keep the vm's drive pre start.
