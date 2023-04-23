@@ -77,4 +77,12 @@ with lib;
     default = null;
   };
 
+  args = mkOption {
+    type = types.listOf types.string;
+    description = lib.mdDoc ''
+      Extra arguments to pass to QEMU.
+    '';
+    default = [ ];
+
+  };
 }

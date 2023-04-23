@@ -2,7 +2,7 @@
 let
   vmsCfg = config.vms;
   vms = vmsCfg.vms;
-  mkService = { name, enable, path, auto, user, group, vm, persist, setup, teardown, ... }@cfg:
+  mkService = { name, enable, path, auto, user, group, vm, persist, setup, teardown, args, ... }@cfg:
     let
       stateDir = vmsCfg.stateDir;
       cleanups = if persist then [ ] else [
@@ -18,7 +18,7 @@ let
       script = ''
         mkdir -p ${stateDir}/${name}
         cd ${stateDir}/${name}
-        exec ${vm.out}/bin/run-${name}-vm;
+        exec ${vm.out}/bin/run-${name}-vm  ${lib.concatStringsSep " " args};
       '';
       serviceConfig = {
         User = user;
