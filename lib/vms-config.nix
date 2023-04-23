@@ -18,7 +18,7 @@ let
       script = ''
         mkdir -p ${stateDir}/${name}
         cd ${stateDir}/${name}
-        exec ${vm.out}/bin/run-${name}-vm  ${lib.concatStringsSep " " args};
+        exec ${vm.out}/bin/run-${name}-vm  ${lib.concatStringsSep " " args };
       '';
       serviceConfig = {
         User = user;

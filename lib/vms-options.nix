@@ -82,7 +82,8 @@ with lib;
     description = lib.mdDoc ''
       Extra arguments to pass to QEMU.
     '';
-    default = [ ];
-
+    default = [
+      "-monitor unix:$(pwd)/qemu.sock,server,nowait"
+    ];
   };
 }
