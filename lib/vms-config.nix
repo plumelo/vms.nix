@@ -32,7 +32,6 @@ let
             } // cfg.options;
           })
         ];
-
       }).config.system.build.vm;
     in
     rec {
