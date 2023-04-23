@@ -2,6 +2,15 @@
 let
   vmsCfg = config.vms;
   vms = vmsCfg.vms;
+  merge = cfgs: cfg: lib.foldr
+    (a: b: {
+      path = a.path ++ b.path;
+      args = a.args ++ b.args;
+      setup = a.setup + b.setup;
+      teardown = a.teardown + b.teardown;
+    })
+    cfg
+    cfgs;
   mkService = { name, enable, path, auto, user, group, vm, persist, setup, teardown, ... }@cfg:
     let
       stateDir = vmsCfg.stateDir;
@@ -11,12 +20,13 @@ let
         ''
         )
       ];
+      merged = merge (import ./interfaces/config.nix pkgs cfg.interfaces { inherit name user group; }) cfg;
       build = (vm.extendModules {
         modules = [
           "${modulesPath}/virtualisation/qemu-vm.nix"
           ({ lib, ... }: {
             virtualisation = {
-              qemu.options = cfg.args;
+              qemu.options = merged.args;
               qemu.networkingOptions = lib.mkDefault [ ];
             } // cfg.options;
           })
@@ -25,7 +35,8 @@ let
       }).config.system.build.vm;
     in
     rec {
-      inherit enable path;
+      inherit enable;
+      inherit (merged) path;
       wantedBy = lib.optional auto "machines.target";
       script = ''
         mkdir -p ${stateDir}/${name}

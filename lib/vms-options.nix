@@ -1,7 +1,7 @@
 { config
 , lib
 , ...
-}:
+}@args:
 
 with lib;
 
@@ -12,11 +12,6 @@ with lib;
       Whether to enable the vm.
     '';
     type = types.bool;
-  };
-
-  path = mkOption {
-    default = [ ];
-    type = with types; listOf (oneOf [ package str ]);
   };
 
   vm = mkOption {
@@ -33,6 +28,16 @@ with lib;
       Additional options to pass as virtualisation.* to the qemu module.
     '';
     default = null;
+  };
+
+  interfaces = mkOption {
+    type = with types; listOf (submodule {
+      options = import ./interfaces/options.nix args;
+    });
+    description = lib.mdDoc ''
+      Interfaces configurations.
+    '';
+    default = [ ];
   };
 
   auto = mkOption {
@@ -83,6 +88,11 @@ with lib;
       Teardown to be executed after the VM has stopped.
     '';
     default = null;
+  };
+
+  path = mkOption {
+    default = [ ];
+    type = with types; listOf (oneOf [ package str ]);
   };
 
   args = mkOption {
