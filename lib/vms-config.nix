@@ -1,16 +1,28 @@
-{ config, pkgs, lib, ... }:
+{ modulesPath, config, pkgs, lib, ... }:
 let
   vmsCfg = config.vms;
   vms = vmsCfg.vms;
-  mkService = { name, enable, path, auto, user, group, vm, persist, setup, teardown, args, ... }@cfg:
+  mkService = { name, enable, path, auto, user, group, vm, persist, setup, teardown, ... }@cfg:
     let
       stateDir = vmsCfg.stateDir;
       cleanups = if persist then [ ] else [
         (pkgs.writeShellScript "vns-${name}-cleanup" ''
-          rm -f -- ${stateDir}/${name}/nixos.qcow2
+          rm -f -- ${stateDir}/${name}/${name}.qcow2
         ''
         )
       ];
+      build = (vm.extendModules {
+        modules = [
+          "${modulesPath}/virtualisation/qemu-vm.nix"
+          ({ lib, ... }: {
+            virtualisation = {
+              qemu.options = cfg.args;
+              qemu.networkingOptions = lib.mkDefault [ ];
+            } // cfg.options;
+          })
+        ];
+
+      }).config.system.build.vm;
     in
     rec {
       inherit enable path;
@@ -18,7 +30,7 @@ let
       script = ''
         mkdir -p ${stateDir}/${name}
         cd ${stateDir}/${name}
-        exec ${vm.out}/bin/run-${name}-vm  ${lib.concatStringsSep " " args };
+        exec ${build.out}/bin/run-${name}-vm;
       '';
       serviceConfig = {
         User = user;

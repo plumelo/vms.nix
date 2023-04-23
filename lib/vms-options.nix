@@ -20,9 +20,17 @@ with lib;
   };
 
   vm = mkOption {
-    type = types.package;
+    type = with types; attrs;
     description = lib.mdDoc ''
-      A derivation for the vm to use. e.g. a NixOS system's `config.system.build.vm`.
+      A NixOS system. The result of a `nixpkgs.lib.nixosSystem` call.
+    '';
+    default = null;
+  };
+
+  options = mkOption {
+    type = with types; attrs;
+    description = lib.mdDoc ''
+      Additional options to pass as virtualisation.* to the qemu module.
     '';
     default = null;
   };
