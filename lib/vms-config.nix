@@ -2,12 +2,13 @@
 let
   vmsCfg = config.vms;
   vms = vmsCfg.vms;
+  join = lines: lib.concatStringsSep "\n" (builtins.filter (x: x != null) lines);
   merge = cfgs: cfg: lib.foldl
     (a: b: {
       path = a.path ++ b.path;
       args = a.args ++ b.args;
-      setup = a.setup + b.setup;
-      teardown = a.teardown + b.teardown;
+      setup = join [ a.setup b.setup ];
+      teardown = join [ a.teardown b.teardown ];
     })
     cfg
     cfgs;
@@ -22,6 +23,7 @@ let
           )
         ] else [ ];
       merged = merge (import ./interfaces/config.nix pkgs cfg.interfaces { inherit name user group; }) cfg;
+      inherit (merged) setup teardown;
       build = (vm.extendModules {
         modules = [
           "${modulesPath}/virtualisation/qemu-vm.nix"
