@@ -41,10 +41,13 @@ let
       inherit (merged) path;
       wantedBy = lib.optional cfg.auto "machines.target";
       script = ''
-        mkdir -p ${stateDir}/${name}
+        mkdir -p ${stateDir}/${name}/tmp
         cd ${stateDir}/${name}
         exec ${build.out}/bin/run-${name}-vm;
       '';
+      environment = {
+        TMPDIR = "${vmsCfg.stateDir}/${name}/tmp";
+      };
       serviceConfig = {
         User = user;
         Group = group;
