@@ -27,12 +27,15 @@ let
       build = (vm.extendModules {
         modules = [
           "${modulesPath}/virtualisation/qemu-vm.nix"
-          ({ lib, ... }: {
-            virtualisation = {
-              qemu.options = merged.args;
-              qemu.networkingOptions = lib.mkForce [ ];
-            } // cfg.options;
-          })
+          ({ lib, ... }: lib.mkMerge [
+            ({
+              virtualisation = {
+                qemu.options = merged.args;
+                qemu.networkingOptions = lib.mkForce [ ];
+              };
+            })
+            ({ virtualisation = cfg.options; })
+          ])
         ];
       }).config.system.build.vm;
     in
