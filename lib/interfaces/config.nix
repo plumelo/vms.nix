@@ -21,6 +21,7 @@ let
           fi
           ip link add link ${link} name $id address ${mac} type macvtap
           ip link set $id up
+          ip link set ${link} up
           chown ${user}:${group} /dev/tap$(< /sys/class/net/$id/ifindex)
         '';
         teardown = ''
