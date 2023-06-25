@@ -15,13 +15,13 @@ let
   mkService = { name, enable, path, user, group, vm, setup, teardown, ... }@cfg:
     let
       stateDir = vmsCfg.stateDir;
-      cleanups =
-        if cfg.cleanup then [
-          (pkgs.writeShellScript "vms-${name}-cleanup" ''
-            rm -f -- ${stateDir}/${name}/${name}.qcow2
-          ''
-          )
-        ] else [ ];
+      cleanup = pkgs.writeShellScript "vms-${name}-cleanup" ''
+        rm -rf -- ${stateDir}/${name}/tmp/*
+        ${ if cfg.cleanup then ''
+          rm -f -- ${stateDir}/${name}/${name}.qcow2
+        ''
+        else ""}
+      '';
       merged = merge (import ./interfaces/config.nix pkgs cfg.interfaces { inherit name user group; }) cfg;
       inherit (merged) setup teardown;
       build = (vm.extendModules {
@@ -56,10 +56,10 @@ let
         Group = group;
         LimitNOFILE = 1048576;
         LimitMEMLOCK = "infinity";
-        ExecStartPre = cleanups ++ lib.optional (setup != null) [
+        ExecStartPre = [ cleanup ] ++ lib.optional (setup != null) [
           "+${pkgs.writeShellScript "vms-${name}-setup" setup}"
         ];
-        ExecStopPost = cleanups ++ lib.optional (setup != null) [
+        ExecStopPost = [ cleanup ] ++ lib.optional (setup != null) [
           "+${pkgs.writeShellScript "vms-${name}-teardown" teardown}"
         ];
 
