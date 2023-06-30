@@ -49,6 +49,7 @@ let
         exec ${build.out}/bin/run-${name}-vm;
       '';
       environment = {
+        VMDIR = "${vmsCfg.stateDir}/${name}";
         TMPDIR = "${vmsCfg.stateDir}/${name}/tmp";
       };
       serviceConfig = {
