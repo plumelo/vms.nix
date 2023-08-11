@@ -96,7 +96,7 @@ with lib;
   };
 
   args = mkOption {
-    type = types.listOf types.string;
+    type = types.listOf types.str;
     description = lib.mdDoc ''
       Extra arguments to pass to QEMU.
     '';
