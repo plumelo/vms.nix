@@ -53,6 +53,7 @@ let
         TMPDIR = "${vmsCfg.stateDir}/${name}/tmp";
       };
       serviceConfig = {
+        StateDirectory = "vms/${name}";
         User = user;
         Group = group;
         LimitNOFILE = 1048576;
